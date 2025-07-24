@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()  # Load before other imports
 import os
 import uuid
 import zipfile
@@ -12,11 +14,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import chromadb
 from chromadb.config import Settings
-from dotenv import load_dotenv
 import requests
 
 # Load environment variables
-load_dotenv()
+# load_dotenv()
 
 # Configuration
 UPLOAD_DIR = "uploads"
@@ -33,10 +34,16 @@ logger = logging.getLogger(__name__)
 
 # Flask App with CORS
 app = Flask(__name__)
+# CORS(app, resources={
+#     r"/*": {"origins": ["http://localhost:3000"]}
+# })
 CORS(app, resources={
-    r"/*": {"origins": ["http://localhost:3000"]}
+    r"/*": {
+        "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
 })
-
 # ChromaDB Setup
 chroma_client = chromadb.PersistentClient(path="chroma_db")
 collection = chroma_client.get_or_create_collection(
@@ -98,7 +105,6 @@ def get_embedding(text: str) -> list:
     except Exception as e:
         logger.error(f"Embedding error: {str(e)}")
         raise
-    
 def chunk_code(content: str, chunk_size: int = 800) -> list[str]:
     """Split code into chunks with line awareness"""
     lines = content.split('\n')

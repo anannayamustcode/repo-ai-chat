@@ -14,33 +14,30 @@ export default function FileUpload({ onUploadStart, onAnalysisStart, onComplete 
     }
   }
 
-  const handleUpload = async () => {
-    if (!file) return
-      
-    onUploadStart()
-    const formData = new FormData()
-    formData.append('file', file)
+const handleUpload = async () => {
+  if (!file) return;
+  
+  onUploadStart();
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  try {
+    const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData });
+    if (!uploadRes.ok) throw new Error('Upload failed');
     
-    try {
-      // Upload file
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      })
-      
-      onAnalysisStart()
-      
-      // Get summary
-      const summaryRes = await fetch('/api/summary')
-      const summary = await summaryRes.json()
-      
-      onComplete(summary)
-    } catch (error) {
-      console.error('Upload failed:', error)
-    }
+    onAnalysisStart();
+    const summaryRes = await fetch('/api/summary');
+    if (!summaryRes.ok) throw new Error('Analysis failed');
+    
+    const summary = await summaryRes.json();
+    onComplete(summary);
+  } catch (error) {
+    console.error('Error:', error);
+    alert(`Error: ${error.message}`);
   }
+};
 
-  return (
+return (
     <Card className="p-8">
       <div 
         className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-colors ${
