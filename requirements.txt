@@ -1,0 +1,12 @@
+flask
+flask-cors
+chromadb>=0.4.15
+python-dotenv
+requests
+numpy
+
+# flask
+# flask-cors
+# chromadb
+# python-dotenv
+# requests
